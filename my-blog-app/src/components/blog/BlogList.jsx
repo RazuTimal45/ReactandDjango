@@ -1,10 +1,16 @@
 // src/components/blog/BlogList.jsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useBlogStore } from '../../store/useBlogStore';
 import { Link } from 'react-router-dom';
+import Dialog from '../dialog/Dialog';
+import BlogForm from './BlogForm';
 
 const BlogList = () => {
-  const { blogs, fetchBlogs, loading, error } = useBlogStore();
+  const { blogs, fetchBlogs,showBlogDetail,deleteBlog,updateBlog, loading, error } = useBlogStore();
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+
 
   useEffect(() => {
     fetchBlogs();
@@ -129,6 +135,174 @@ const BlogList = () => {
                   {new Date(blog.created_at).toLocaleDateString()}
                 </small>
               </div>
+               <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end', // Align to right (or 'space-between' if needed)
+                    alignItems: 'center',
+                    gap: '12px',
+                    marginTop: '50px',
+                  }}
+                >
+                  {/* View Button - Primary Action */}
+                  <button
+                    onClick={()=>setIsViewOpen(true)}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#3b82f6', // Blue
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#2563eb';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#3b82f6';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    👁️ View
+                  </button>
+
+                  {/* Edit Button - Secondary Action */}
+                  <button
+                   onClick={()=>setIsEditOpen(true)}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#10b981', // Green
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#059669';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#10b981';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    ✏️ Edit
+                  </button>
+
+                  {/* Delete Button - Danger Action */}
+                  <button
+                    onClick={() => setIsDeleteOpen(true)}
+                    style={{
+                      padding: '10px 20px',
+                      backgroundColor: '#ef4444', 
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#dc2626';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#ef4444';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
+                {/* dialog delete component */}
+                <Dialog
+                  isOpen={isDeleteOpen}
+                  onClose={() => setIsDeleteOpen(false)}
+                  title="Delete Blog"
+                  primaryAction={{
+                    label: 'Delete',
+                    onClick: () => {
+                      deleteBlog(blog.id);
+                    },
+                    danger: true,
+                  }}
+                  secondaryAction={{
+                    label: 'Cancel',
+                    onClick: () => setIsDeleteOpen(false),
+                  }}
+                >
+                  <p>Are you sure you want to delete this blog? This action cannot be undone.</p>
+                </Dialog>
+                 {/* dialog edit component */}
+                <Dialog
+                  isOpen={isEditOpen}
+                  onClose={() => setIsEditOpen(false)}
+                  title="Edit Blog"
+                  primaryAction={{
+                    label: 'Update',
+                    onClick: () => {
+                      updateBlog(blog.id, editedBlogData);
+                    },
+                    success: true,
+                  }}
+                  secondaryAction={{
+                    label: 'Cancel',
+                    onClick: () => setIsEditOpen(false),
+                  }}
+                >
+                <p>This is edit</p>
+                </Dialog>
+                 {/* dialog view component */}
+                 <Dialog
+                  isOpen={isViewOpen}
+                  onClose={() => setIsViewOpen(false)}
+                  title="View Blog Detail"
+                  primaryAction={{
+                    label: 'View',
+                    onClick: () => {
+                      showBlogDetail()
+                    },
+                    danger: false,
+                  }}
+                  secondaryAction={{
+                    label: 'Cancel',
+                    onClick: () => setIsViewOpen(false),
+                  }}
+                >
+                  {blog ? (
+                      <div style={{ lineHeight: '1.8', color: '#1e293b' }}>
+                        <h3 style={{ margin: '0 0 16px 0', fontSize: '20px', color: '#1e293b' }}>
+                          {blog.title}
+                        </h3>
+                        <p style={{ margin: '0 0 16px 0', whiteSpace: 'pre-wrap' }}>
+                          {blog.content}
+                        </p>
+                        <div style={{ fontSize: '14px', color: '#64748b' }}>
+                          <strong>Category:</strong> {blog.category?.name || 'Uncategorized'}<br />
+                          <strong>Created:</strong> {new Date(blog.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                    ) : (
+                      <p>Loading blog details...</p>
+                    )}
+                </Dialog>
             </div>
           ))}
         </div>

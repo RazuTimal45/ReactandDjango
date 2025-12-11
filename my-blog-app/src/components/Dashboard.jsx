@@ -7,21 +7,24 @@ import Sidebar from './Sidebar';
 
 const Dashboard = () => {
   return (
-    <div style={{ display: 'flex',maxWidth:'100vw', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', width: '100vw', margin: 0, padding: 0 }}>
       
       {/* Left Sidebar */}
       <Sidebar />
 
       {/* Right Content Area */}
-      <div
+    <div
         style={{
-          marginLeft: '100px',  
-          padding: '20px',
-          width: '100%',
+          flex: 1,                   
+          marginLeft: '330px',        
           backgroundColor: '#f8fafc',
+          minHeight: '100vh',
+          overflowX: 'hidden',        
         }}
       >
-        <Outlet />  
+        <main style={{ padding: '32px' }}>
+          <Outlet />
+        </main>
       </div>
     </div>
   );

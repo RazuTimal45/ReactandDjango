@@ -105,7 +105,6 @@ const AuthForm = ({ isLogin }) => {
 
     try {
       await login(username, password);
-      navigate('/');
     } catch (err)  {
       console.log(err)
     }

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Navigate, Outlet } from 'react-router-dom'; 
 import { useBlogStore } from '../../store/useBlogStore';
 
 const BlogForm = () => {
-  const { categories, addBlog } = useBlogStore();
+  const { categories, addBlog,fetchCategories } = useBlogStore();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState(categories[0] || '');
@@ -15,6 +16,10 @@ const BlogForm = () => {
   useEffect(() => {
     titleInputRef.current?.focus();
   }, []);
+
+    useEffect(() => {
+        fetchCategories();
+      }, [fetchCategories]);
 
   // Update category when categories change (e.g., after adding new one)
   useEffect(() => {
@@ -39,9 +44,10 @@ const BlogForm = () => {
     addBlog({
       title: title.trim(),
       content: content.trim(),
-      category,
+      category_id:category?.id,
+      author:1,
     });
-
+  
     // Reset form
     setTitle('');
     setContent('');
@@ -194,10 +200,10 @@ const BlogForm = () => {
             </label>
             <select
               id="category"
-              value={category}
+              value={category?.id || ''}
               onChange={(e) => setCategory(e.target.value)}
               style={{
-                width: '100%',
+                width: '97%',
                 padding: '14px 16px',
                 fontSize: '16px',
                 border: '1px solid #cbd5e1',
@@ -212,8 +218,8 @@ const BlogForm = () => {
               onBlur={(e) => (e.target.style.borderColor = '#cbd5e1')}
             >
               {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
                 </option>
               ))}
             </select>
@@ -230,7 +236,7 @@ const BlogForm = () => {
                 fontWeight: '600',
                 backgroundColor:
                   isSubmitting || !title.trim() || !content.trim()
-                    ? '#94a3b8'
+                    ? '#083169ff'
                     : '#3b82f6',
                 color: 'white',
                 border: 'none',
@@ -240,7 +246,6 @@ const BlogForm = () => {
                     ? 'not-allowed'
                     : 'pointer',
                 transition: 'all 0.2s',
-                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
               }}
               onMouseEnter={(e) =>
                 !(isSubmitting || !title.trim() || !content.trim()) &&

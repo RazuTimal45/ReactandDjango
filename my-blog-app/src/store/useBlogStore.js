@@ -3,6 +3,7 @@ import api from '../api/axios';
 
 export const useBlogStore = create((set) => ({
   categories: [],
+  blogDetail:[],
   blogs: [],
   selectedCategory: null,
   adminSection: 'blogs',
@@ -16,8 +17,10 @@ export const useBlogStore = create((set) => ({
   fetchCategories: async() =>{
     set({loading:true, error:null});
     try{
-      const response = await api.ge('/categories/');
-      console.log('category response format',response)
+      const response = await api.get('/categories/');
+      const categoriesData = response.data.results || response.data;
+      set({ categories: categoriesData, loading: false });
+      console.log('category response format',response.data.results)
 
     }catch(err){
       set({error:err.response?.data?.detail || err.message, loading:false});
@@ -28,7 +31,8 @@ export const useBlogStore = create((set) => ({
     set({loading:true, error:null});
     try{
       const response = await api.get('/blogs/');
-      // set({blogs: response.data, loading:false});
+       const blogsData = response.data.results || response.data;
+      set({ blogs: blogsData, loading: false });
       console.log('blog response format',response)
     }catch(err){
       set({ error: err.response?.data?.detail || err.message, loading: false });
@@ -51,6 +55,20 @@ export const useBlogStore = create((set) => ({
        set({error: errorMsg, loading: false})
        throw errorMsg;
     }
+  },
+
+  showBlogDetail: async (id) =>{
+      set({loading:true, error:null});
+      try{
+        const response = await api.get(`/blogs/${id}/`)
+        const blog = response.data.results || response.data
+        set({blogDetail: blog, loading:false});
+        return response.data;
+      }catch(err){
+        const errMsg = err.response?.data || err.message
+        set({error: errMsg, loading:false})
+        throw errMsg;
+      }
   },
 
   updateBlog: async (id, updatedData) => {

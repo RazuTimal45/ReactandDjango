@@ -19,6 +19,9 @@ const CategoryManager = () => {
     inputRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+      fetchCategories();
+    }, [fetchCategories]);
   // Show success message briefly
   useEffect(() => {
     if (showSuccess) {
@@ -219,41 +222,41 @@ const CategoryManager = () => {
         <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#1e293b', margin: '0 0 24px 0' }}>
           Existing Categories ({categories.length})
         </h2>
-        {categories.length > 0 ? (
+       {categories.length > 0 ? (
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+          gap: '16px',
+        }}
+      >
+        {categories.map((cat) => (
           <div
+            key={cat.id}  
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-              gap: '16px',
+              backgroundColor: '#f8fafc',
+              padding: '16px 20px',
+              borderRadius: '12px',
+              border: '1px solid #e2e8f0',
+              textAlign: 'center',
+              fontWeight: '500',
+              color: '#475569',
+              fontSize: '16px',
+              transition: 'all 0.2s',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f1f5f9')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')}
           >
-            {categories.map((cat) => (
-              <div
-                key={cat}
-                style={{
-                  backgroundColor: '#f8fafc',
-                  padding: '16px 20px',
-                  borderRadius: '12px',
-                  border: '1px solid #e2e8f0',
-                  textAlign: 'center',
-                  fontWeight: '500',
-                  color: '#475569',
-                  fontSize: '16px',
-                  transition: 'all 0.2s',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f1f5f9')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')}
-              >
-                {cat}
-              </div>
-            ))}
+            {cat.name}  
           </div>
-        ) : (
-          <p style={{ color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '40px 0' }}>
-            No categories yet. Add your first one above!
-          </p>
-        )}
+        ))}
+      </div>
+     ) : (
+      <p style={{ color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '40px 0' }}>
+        No categories yet. Add your first one above!
+      </p>
+    )}
       </div>
     </div>
   );

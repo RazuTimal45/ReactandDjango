@@ -1,6 +1,7 @@
 import React from 'react';
 import { useBlogStore } from '../store/useBlogStore';
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from '../store/useAuthStore';
 
 
 const Sidebar = () => {
@@ -11,6 +12,10 @@ const Sidebar = () => {
     adminSection,
     setAdminSection,
   } = useBlogStore();
+
+  const {
+    logout,
+  } = useAuthStore()
 
   const navigate = useNavigate();
 
@@ -64,7 +69,7 @@ const Sidebar = () => {
 
           {/* Categories List */}
           {categories.map((cat) => (
-            <li key={cat} style={{ marginTop: '4px' }}>
+            <li key={cat.id} style={{ marginTop: '4px' }}>
               <button
                 onClick={() => setSelectedCategory(cat)}
                 style={{
@@ -82,7 +87,7 @@ const Sidebar = () => {
                 onMouseEnter={(e) => selectedCategory !== cat && (e.currentTarget.style.backgroundColor = '#2d3748')}
                 onMouseLeave={(e) => selectedCategory !== cat && (e.currentTarget.style.backgroundColor = 'transparent')}
               >
-                {cat}
+                {cat.name}
               </button>
             </li>
           ))}
@@ -162,6 +167,49 @@ const Sidebar = () => {
           >
             🏷️ Manage Categories
           </button>
+
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '100px',
+              left: '24px',
+              right: '24px',
+              paddingTop: '20px',
+              borderTop: '1px solid #334155',
+            }}
+          >
+            <button
+              onClick={logout} 
+              style={{
+                width: '100%',
+                padding: '14px 20px',
+                background: 'linear-gradient(to right, #ce80ecff, #9c5ee2ff)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: '600',
+                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '10px',
+                transition: 'all 0.3s ease',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(to right, #1e14a0ff, #421a81ff)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(to right, #6524a1ff, #8425afff)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <span style={{ fontSize: '20px' }}>🚪</span>
+              Logout
+            </button>
+          </div>
         </div>
       </div>
     </div>
