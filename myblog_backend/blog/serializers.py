@@ -15,7 +15,7 @@ class PublicCategorySerializer(serializers.ModelSerializer):  # ← Fixed: was P
 
 # FIX 2: Field name should be lowercase 'category'
 class PublicBlogSerializer(serializers.ModelSerializer):
-    category = PublicCategorySerializer(read_only=True)  # ← lowercase 'c'
+    category = PublicCategorySerializer(read_only=True) 
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(),
         source='category',
@@ -24,7 +24,7 @@ class PublicBlogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blog
-        fields = ['id', 'title', 'content', 'category', 'category_id', 'created_at', 'updated_at']
+        fields = ['id', 'title','image', 'content', 'category', 'category_id', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']
 
 # Admin serializers (optional, but fix typos)
@@ -42,5 +42,5 @@ class AdminBlogSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Blog
-        fields = ['id', 'title', 'content', 'category', 'category_id', 'created_at', 'updated_at']
+        fields = ['id', 'title','image','content', 'category', 'category_id', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']

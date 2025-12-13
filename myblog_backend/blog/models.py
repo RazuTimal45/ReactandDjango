@@ -17,12 +17,20 @@ class Blog(models.Model):
     title = models.CharField(max_length=200)
     content = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='blogs')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blogs')  
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='blogs') 
+    image = models.ImageField(
+        upload_to='blog_images/',
+        null=True,
+        blank=True,
+        help_text="Optional cover image for the blog"
+    ) 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-created_at']
+        verbose_name = "Blog"
+        verbose_name_plural = "Blogs"
 
     def __str__(self):
         return self.title
