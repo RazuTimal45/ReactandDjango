@@ -96,7 +96,6 @@ const CategoryManager = () => {
       try {
         await deleteCategory(categoryToDelete.id);
         closeDeleteDialog();
-        // Optional: refresh list
         fetchCategories();
       } catch (err) {
         console.error('Failed to delete category:', err);
