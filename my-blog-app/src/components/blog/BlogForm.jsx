@@ -6,10 +6,10 @@ const BlogForm = () => {
   const { categories, addBlog,fetchCategories } = useBlogStore();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [category, setCategory] = useState(categories[0] || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [image, setImage] = useState(null);
 
   const titleInputRef = useRef(null);
 
@@ -37,21 +37,28 @@ const BlogForm = () => {
     }
   }, [showSuccess]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return;
 
     setIsSubmitting(true);
-    addBlog({
-      title: title.trim(),
-      content: content.trim(),
-      category_id:selectedCategory?.id,
-      author:1,
-    });
+
+
+    const formData = new FormData();
+    formData.append('title',title.trim());
+    formData.append('content',content.trim());
+    formData.append('category_id',selectedCategory?.id);
+    formData.append('author',1);
+    if(image){
+      formData.append('image',image);
+    }
+
+    await addBlog(formData);
   
     // Reset form
     setTitle('');
     setContent('');
+    setImage(null);
     setSelectedCategory(categories[0] || '');
     setIsSubmitting(false);
     setShowSuccess(true);
@@ -109,7 +116,7 @@ const BlogForm = () => {
           border: '1px solid #e2e8f0',
         }}
       >
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
           {/* Title Field */}
           <div style={{ marginBottom: '24px' }}>
             <label
@@ -146,6 +153,34 @@ const BlogForm = () => {
               onBlur={(e) => (e.target.style.borderColor = '#cbd5e1')}
             />
           </div>
+           {/* ✅ Image Upload */}
+            <label
+              htmlFor="title"
+              style={{
+                display: 'block',
+                marginBottom: '8px',
+                fontWeight: '600',
+                color: '#374151',
+                fontSize: '14px',
+              }}
+            >
+              Blog Image
+            </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files[0])}
+            style={{ marginBottom: '20px' }}
+          />
+
+          {/* Preview */}
+          {image && (
+            <img
+              src={URL.createObjectURL(image)}
+              alt="Preview"
+              style={{ width: '200px', marginBottom: '20px', borderRadius: '8px' }}
+            />
+          )}
 
           {/* Content Field */}
           <div style={{ marginBottom: '24px' }}>

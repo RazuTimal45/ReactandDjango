@@ -51,13 +51,10 @@ export const useBlogStore = create((set) => ({
   },
 
   addBlog: async (blogData) => {
+    console.log('image blogdate',blogData);
     set({loading:true, error:null});
     try{
-       const response = await api.post('/blogs/',{
-         title:blogData.title,
-         content:blogData.content,
-         category_id:blogData.category_id
-       });
+       const response = await api.post('/blogs/',blogData);
        set((state) => ({blogs: [...state.blogs, response.data], loading:false}))
        return response.data;
     }catch(err){

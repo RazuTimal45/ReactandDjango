@@ -131,6 +131,38 @@ const BlogList = () => {
                 e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.08)';
               }}
             >
+               {blog.image ? (
+                  <img
+                    src={blog.image}
+                    alt={blog.title}
+                    style={{
+                      width: '100%',
+                      height: '180px',
+                      objectFit: 'cover',
+                      borderRadius: '12px',
+                      marginBottom: '16px',
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '180px',
+                      borderRadius: '12px',
+                      marginBottom: '16px',
+                      backgroundColor: '#e2e8f0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#94a3b8',
+                      fontWeight: '600',
+                      fontSize: '14px',
+                    }}
+                  >
+                    No Image
+                  </div>
+                )}
+
               <h3 style={{
                 fontSize: '20px',
                 fontWeight: '700',
@@ -139,6 +171,7 @@ const BlogList = () => {
               }}>
                 {blog.title}
               </h3>
+
               <p style={{
                 color: '#475569',
                 margin: '0 0 16px 0',
