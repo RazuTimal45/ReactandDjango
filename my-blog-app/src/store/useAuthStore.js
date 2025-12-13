@@ -22,16 +22,6 @@ export const useAuthStore = create((set, get) => ({
   }
 },
 
-fetchUser: async () => {
-  set({ loading: true, error: null });
-  try {
-    const response = await api.get('/current-user/');
-    set({ user: response.data, isAuthenticated: true, loading: false });
-  } catch (err) {
-    get().logout();
-    set({ loading: false });
-  }
-},
 
   // Fetch authenticated user data
   fetchUser: async () => {

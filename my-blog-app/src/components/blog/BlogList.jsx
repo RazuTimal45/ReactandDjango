@@ -6,7 +6,7 @@ import Dialog from '../dialog/Dialog';
 import BlogForm from './BlogForm';
 
 const BlogList = () => {
-  const { blogs, fetchBlogs,showBlogDetail,deleteBlog,updateBlog, loading, error } = useBlogStore();
+  const { blogs, fetchBlogs,showBlogDetail,deleteBlog,updateBlog,  selectedCategory, loading, error } = useBlogStore();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -37,7 +37,7 @@ const BlogList = () => {
       <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ fontSize: '28px', fontWeight: '700', color: '#1e293b', margin: '0 0 8px 0' }}>
-            All Blogs
+            {selectedCategory ? selectedCategory.name : 'All'} Blogs
           </h1>
           <p style={{ color: '#64748b', fontSize: '16px', margin: 0 }}>
             Total: <strong>{blogs.length}</strong> {blogs.length === 1 ? 'blog' : 'blogs'}

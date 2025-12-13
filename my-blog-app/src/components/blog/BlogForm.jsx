@@ -9,6 +9,7 @@ const BlogForm = () => {
   const [category, setCategory] = useState(categories[0] || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const titleInputRef = useRef(null);
 
@@ -22,11 +23,11 @@ const BlogForm = () => {
       }, [fetchCategories]);
 
   // Update category when categories change (e.g., after adding new one)
-  useEffect(() => {
-    if (categories.length > 0 && !categories.includes(category)) {
-      setCategory(categories[0]);
-    }
-  }, [categories, category]);
+ useEffect(() => {
+  if (categories.length > 0 && !selectedCategory) {
+    setSelectedCategory(categories[0]);
+  }
+}, [categories]);
 
   // Show success message briefly
   useEffect(() => {
@@ -44,14 +45,14 @@ const BlogForm = () => {
     addBlog({
       title: title.trim(),
       content: content.trim(),
-      category_id:category?.id,
+      category_id:selectedCategory?.id,
       author:1,
     });
   
     // Reset form
     setTitle('');
     setContent('');
-    setCategory(categories[0] || '');
+    setSelectedCategory(categories[0] || '');
     setIsSubmitting(false);
     setShowSuccess(true);
 
@@ -200,8 +201,11 @@ const BlogForm = () => {
             </label>
             <select
               id="category"
-              value={category?.id || ''}
-              onChange={(e) => setCategory(e.target.value)}
+              value={selectedCategory?.id || ''}
+              onChange={(e) => {
+                const cat = categories.find(c => c.id === parseInt(e.target.value));
+                setSelectedCategory(cat || null);
+              }}
               style={{
                 width: '97%',
                 padding: '14px 16px',

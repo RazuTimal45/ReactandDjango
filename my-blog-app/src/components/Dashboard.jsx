@@ -3,6 +3,7 @@ import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import Sidebar from './Sidebar';
+import DashboardHeader from './DashboardHeader';
 
 
 const Dashboard = () => {
@@ -22,7 +23,8 @@ const Dashboard = () => {
           overflowX: 'hidden',        
         }}
       >
-        <main style={{ padding: '32px' }}>
+           <DashboardHeader />
+          <main style={{ padding: '32px' }}>
           <Outlet />
         </main>
       </div>

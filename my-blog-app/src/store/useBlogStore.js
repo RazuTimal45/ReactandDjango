@@ -39,6 +39,16 @@ export const useBlogStore = create((set) => ({
     }
   },
 
+  filteredBlogs:async (category) =>{
+     set({loading:true, error:null});
+     try{
+      const response = await api.get(`/blogs/category/${category}/`);
+      const blogsFilterData = response.data.results || response.data;
+      set({blogs:blogsFilterData, loading:false});
+     }catch(err){
+      set({error: err.response?.data?.detail || err.message, loading:false});
+     }
+  },
 
   addBlog: async (blogData) => {
     set({loading:true, error:null});
@@ -114,6 +124,20 @@ export const useBlogStore = create((set) => ({
         set({error: err.response?.data?.name?.[0] || 'Failed to add category', loading:false});
         throw err;
       }
+  },
+  deleteCategory:async (id) => {
+    set({loading:true, error:null});
+    try{
+      await api.delete(`/categories/${id}/`)
+      set((state)=>({
+        categories:state.categories.filter((c) => c.id !== id),
+        loading:false
+      }))
+    }catch(err){
+     const errMsg = err.response?.data || err.message;
+     set({error:errMsg,loading:false})
+     throw errMsg;
+    }
   },
 
   // === INITIAL LOAD ===

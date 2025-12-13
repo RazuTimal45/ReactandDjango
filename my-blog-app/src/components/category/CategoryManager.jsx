@@ -1,28 +1,38 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useBlogStore } from '../../store/useBlogStore';
+import Dialog from '../dialog/Dialog';
 
 const CategoryManager = () => {
-  const { categories,
-          addCategory,
-          loading: storeLoading,
-          error: storeError,
-          fetchCategories,
-         } = useBlogStore();
+  const {
+    categories,
+    addCategory,
+    deleteCategory,
+    loading: storeLoading,
+    error: storeError,
+    fetchCategories,
+  } = useBlogStore();
+
   const [newCategory, setNewCategory] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [localError, setLocalError] = useState('');
 
+  // Delete dialog state
+  const [categoryToDelete, setCategoryToDelete] = useState(null); // { id, name }
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
   const inputRef = useRef(null);
 
-  // Auto-focus input on mount
+  // Auto-focus input
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
+  // Fetch categories on mount
   useEffect(() => {
-      fetchCategories();
-    }, [fetchCategories]);
-  // Show success message briefly
+    fetchCategories();
+  }, [fetchCategories]);
+
+  // Auto-hide success message
   useEffect(() => {
     if (showSuccess) {
       const timer = setTimeout(() => setShowSuccess(false), 3000);
@@ -30,17 +40,12 @@ const CategoryManager = () => {
     }
   }, [showSuccess]);
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const trimmed = newCategory.trim();
 
     if (!trimmed) {
       setLocalError('Category name cannot be empty.');
-      return;
-    }
-
-    if (categories.includes(trimmed)) {
-      setLocalError('This category already exists.');
       return;
     }
 
@@ -50,32 +55,59 @@ const CategoryManager = () => {
     }
 
     const exists = categories.some(
-      (cat) => typeof cat === 'object'
-        ? cat.name.toLowerCase() === trimmed.toLowerCase()
-        : cat.toLowerCase() === trimmed.toLowerCase()
+      (cat) =>
+        cat.name?.toLowerCase() === trimmed.toLowerCase()
     );
 
     if (exists) {
       setLocalError('This category already exists.');
       return;
     }
-   try{
+
+    try {
       setLocalError('');
       await addCategory(trimmed);
       setNewCategory('');
       setShowSuccess(true);
       inputRef.current?.focus();
-      fetchCategories();
-      }catch(err){
-        console.error('Failed to add category: ', err)
-      }
+      // Optional: refetch if store doesn't update automatically
+      // fetchCategories();
+    } catch (err) {
+      console.error('Failed to add category:', err);
+      setLocalError('Failed to add category. Please try again.');
+    }
   };
-  const isLoading = storeLoading;
+
+  // Open delete confirmation dialog
+  const openDeleteDialog = (category) => {
+    setCategoryToDelete(category);
+    setIsDeleteOpen(true);
+  };
+
+  // Close dialog
+  const closeDeleteDialog = () => {
+    setCategoryToDelete(null);
+    setIsDeleteOpen(false);
+  };
+
+  // Confirm deletion
+  const confirmDelete = async () => {
+    if (categoryToDelete) {
+      try {
+        await deleteCategory(categoryToDelete.id);
+        closeDeleteDialog();
+        // Optional: refresh list
+        fetchCategories();
+      } catch (err) {
+        console.error('Failed to delete category:', err);
+      }
+    }
+  };
 
   return (
     <div
       style={{
-        maxWidth: '100vw',
+        maxWidth: '1200px',
         margin: '0 auto',
         padding: '40px 20px',
       }}
@@ -111,28 +143,30 @@ const CategoryManager = () => {
         </div>
       )}
 
-     {/* Error Message */}
-      {(localError) && (
-        <div style={{
-          backgroundColor: '#fee2e2',
-          color: '#991b1b',
-          padding: '18px',
-          borderRadius: '12px',
-          border: '1px solid #fecaca',
-          marginBottom: '32px',
-          fontWeight: '500',
-          fontSize: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px',
-        }}>
+      {/* Error Message */}
+      {localError || storeError ? (
+        <div
+          style={{
+            backgroundColor: '#fee2e2',
+            color: '#991b1b',
+            padding: '18px',
+            borderRadius: '12px',
+            border: '1px solid #fecaca',
+            marginBottom: '32px',
+            fontWeight: '500',
+            fontSize: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+          }}
+        >
           <span style={{ fontSize: '24px' }}>⚠️</span>
           {localError || storeError}
         </div>
-      )}
+      ) : null}
 
-      {/* Add Category Card */}
+      {/* Add New Category */}
       <div
         style={{
           backgroundColor: '#ffffff',
@@ -172,7 +206,7 @@ const CategoryManager = () => {
               }}
               placeholder="e.g., Design, Marketing, Personal"
               style={{
-                width: '95%',
+                width: '98%',
                 padding: '14px 16px',
                 fontSize: '16px',
                 border: '1px solid #cbd5e1',
@@ -188,28 +222,29 @@ const CategoryManager = () => {
 
           <button
             type="submit"
+            disabled={storeLoading}
             style={{
               padding: '14px 32px',
               fontSize: '16px',
               fontWeight: '600',
-              backgroundColor: '#21457eff',
+              backgroundColor: '#163669ff',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
-              cursor: 'pointer',
+              cursor: storeLoading ? 'not-allowed' : 'pointer',
               transition: 'all 0.2s',
-              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
               minWidth: '140px',
+              opacity: storeLoading ? 0.7 : 1,
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#3b82f6')}
+            onMouseEnter={(e) => !storeLoading && (e.currentTarget.style.backgroundColor = '#2563eb')}
+            onMouseLeave={(e) => !storeLoading && (e.currentTarget.style.backgroundColor = '#3b82f6')}
           >
-            Add Category
+            {storeLoading ? 'Adding...' : 'Add Category'}
           </button>
         </form>
       </div>
 
-     
+      {/* Existing Categories */}
       <div
         style={{
           backgroundColor: '#ffffff',
@@ -222,42 +257,99 @@ const CategoryManager = () => {
         <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#1e293b', margin: '0 0 24px 0' }}>
           Existing Categories ({categories.length})
         </h2>
-       {categories.length > 0 ? (
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-          gap: '16px',
+
+        {categories.length > 0 ? (
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+              gap: '16px',
+            }}
+          >
+            {categories.map((cat) => (
+              <div
+                key={cat.id}
+                style={{
+                  backgroundColor: '#f8fafc',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  border: '1px solid #e2e8f0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontWeight: '500',
+                  color: '#475569',
+                  fontSize: '16px',
+                  transition: 'all 0.2s',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f1f5f9')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')}
+              >
+                <span>{cat.name}</span>
+
+                <button
+                  onClick={() => openDeleteDialog(cat)}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    backgroundColor: '#fee2e2',
+                    color: '#ef4444',
+                    border: 'none',
+                    borderRadius: '50%',
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#fecaca';
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = '#fee2e2';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                  aria-label={`Delete category ${cat.name}`}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '40px 0' }}>
+            No categories yet. Add your first one above!
+          </p>
+        )}
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        isOpen={isDeleteOpen}
+        onClose={closeDeleteDialog}
+        title="Delete Category"
+        primaryAction={{
+          label: 'Delete',
+          onClick: confirmDelete,
+          danger: true,
+        }}
+        secondaryAction={{
+          label: 'Cancel',
+          onClick: closeDeleteDialog,
         }}
       >
-        {categories.map((cat) => (
-          <div
-            key={cat.id}  
-            style={{
-              backgroundColor: '#f8fafc',
-              padding: '16px 20px',
-              borderRadius: '12px',
-              border: '1px solid #e2e8f0',
-              textAlign: 'center',
-              fontWeight: '500',
-              color: '#475569',
-              fontSize: '16px',
-              transition: 'all 0.2s',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f1f5f9')}
-            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#f8fafc')}
-          >
-            {cat.name}  
-          </div>
-        ))}
-      </div>
-     ) : (
-      <p style={{ color: '#94a3b8', fontStyle: 'italic', textAlign: 'center', padding: '40px 0' }}>
-        No categories yet. Add your first one above!
-      </p>
-    )}
-      </div>
+        <p>
+          Are you sure you want to delete the category{' '}
+          <strong style={{ color: '#dc2626' }}>"{categoryToDelete?.name}"</strong>?
+        </p>
+        <p style={{ fontSize: '14px', color: '#64748b', marginTop: '12px' }}>
+          Blogs in this category will become uncategorized. This action cannot be undone.
+        </p>
+      </Dialog>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useBlogStore } from '../store/useBlogStore';
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from '../store/useAuthStore';
@@ -6,16 +6,27 @@ import { useAuthStore } from '../store/useAuthStore';
 
 const Sidebar = () => {
   const {
+    fetchBlogs,
     categories,
     selectedCategory,
     setSelectedCategory,
     adminSection,
     setAdminSection,
+    fetchCategories,
+    filteredBlogs
   } = useBlogStore();
 
   const {
     logout,
   } = useAuthStore()
+
+  useEffect(() => {
+  fetchCategories(); 
+}, []);
+
+  useEffect(()=>{
+    filteredBlogs(selectedCategory?.id ?? '' )
+  },[selectedCategory])
 
   const navigate = useNavigate();
 
@@ -45,52 +56,30 @@ const Sidebar = () => {
         </h3>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {/* All Blogs */}
-          <li>
-            <button
-              onClick={() => setSelectedCategory(null)}
-              style={{
-                width: '100%',
-                textAlign: 'left',
-                padding: '10px 12px',
-                backgroundColor: selectedCategory === null ? '#334155' : 'transparent',
-                color: selectedCategory === null ? '#fff' : '#cbd5e1',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: selectedCategory === null ? '600' : '400',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => selectedCategory !== null && (e.currentTarget.style.backgroundColor = '#2d3748')}
-              onMouseLeave={(e) => selectedCategory !== null && (e.currentTarget.style.backgroundColor = 'transparent')}
-            >
-              All Blogs
-            </button>
-          </li>
-
           {/* Categories List */}
-          {categories.map((cat) => (
-            <li key={cat.id} style={{ marginTop: '4px' }}>
-              <button
-                onClick={() => setSelectedCategory(cat)}
-                style={{
-                  width: '100%',
-                  textAlign: 'left',
-                  padding: '10px 12px',
-                  backgroundColor: selectedCategory === cat ? '#334155' : 'transparent',
-                  color: selectedCategory === cat ? '#fff' : '#cbd5e1',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontWeight: selectedCategory === cat ? '600' : '400',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => selectedCategory !== cat && (e.currentTarget.style.backgroundColor = '#2d3748')}
-                onMouseLeave={(e) => selectedCategory !== cat && (e.currentTarget.style.backgroundColor = 'transparent')}
-              >
-                {cat.name}
-              </button>
-            </li>
-          ))}
+          <select
+              value={selectedCategory ? selectedCategory.id : ''}
+              onChange={(e) => {
+                const selected = categories.find(cat => cat.id === parseInt(e.target.value));
+                setSelectedCategory(selected);
+              }}
+              style={{
+                width: '275px',
+                padding: '8px 12px',
+                borderRadius: '6px',
+                border: '1px solid #cbd5e1',
+                backgroundColor: '#1e293b',
+                color: '#fff',
+                cursor: 'pointer',
+              }}
+            >
+              <option value="" disabled>Select Category</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
         </ul>
       </div>
 
@@ -104,6 +93,7 @@ const Sidebar = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <button
               onClick={() => {
+                fetchBlogs()
                 setAdminSection('blogs');
                 navigate('/'); 
               }}
